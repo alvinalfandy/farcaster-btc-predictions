@@ -1,0 +1,13 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjEsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg0ODkzNGEyMzY0NzM5OWY2NDZmNzMzNjk2ZTc0MzI3YmY5MTBhNzM5In0",
+    "payload": "eyJkb21haW4iOiJmYXJjYXN0ZXItYnRjLXByZWRpY3Rpb25zLXZzcHYudmVyY2VsLmFwcCJ9",
+    "signature": "MHgxMjM0NTY3ODkwYWJjZGVmMTIzNDU2Nzg5MGFiY2RlZjEyMzQ1Njc4OTBhYmNkZWYxMjM0NTY3ODkwYWJjZGVmMWI"
+  },
+  "name": "BTC Predictions",
+  "version": "1.0.0",
+  "iconUrl": "https://farcaster-btc-predictions-vspv.vercel.app/og/result.png",
+  "splashImageUrl": "https://farcaster-btc-predictions-vspv.vercel.app/og/result.png",
+  "homeUrl": "https://farcaster-btc-predictions-vspv.vercel.app",
+  "description": "Vote on BTC price predictions"
+}
