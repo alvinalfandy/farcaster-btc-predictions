@@ -1,65 +1,110 @@
 import { supabase } from '../../lib/supabaseClient';
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    try {
-      const body = req.body;
-      console.log('Received POST data:', body);
-      
-      // Determine vote based on button clicked
-      let team;
-      if (body.untrustedData?.buttonIndex === 1) {
-        team = 'yes';
-      } else if (body.untrustedData?.buttonIndex === 2) {
-        team = 'no';
-      } else {
-        // Fallback - check if team is directly provided
-        team = body.team || 'unknown';
-      }
-      
-      const username = body.untrustedData?.fid || body.untrustedData?.frameUser?.username || 'anonymous';
-      
-      // Save vote to database
-      const { error } = await supabase.from('votes').insert([
-        { team, username: String(username) }
-      ]);
-      
-      if (error) {
-        console.error('Database error:', error);
-        return res.status(500).json({ error: error.message });
-      }
-      
-      // Return frame response showing result
-      const html = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="utf-8">
-            <meta property="fc:frame" content="vNext" />
-            <meta property="fc:frame:title" content="Vote recorded! Thanks for voting ${team.toUpperCase()}!" />
-            <meta property="fc:frame:image" content="https://farcaster-btc-predictions-vspv.vercel.app/og/result.png" />
-            <meta property="fc:frame:button:1" content="🔄 Vote Again" />
-            <meta property="fc:frame:button:1:action" content="post" />
-            <meta property="fc:frame:button:1:target" content="https://farcaster-btc-predictions-vspv.vercel.app/api/frame" />
-            <meta property="fc:frame:button:2" content="📊 See Results" />
-            <meta property="fc:frame:button:2:action" content="link" />
-            <meta property="fc:frame:button:2:target" content="https://farcaster-btc-predictions-vspv.vercel.app/api/results" />
-          </head>
-          <body>
-            <h1>Vote Recorded!</h1>
-            <p>You voted: ${team.toUpperCase()}</p>
-          </body>
-        </html>
-      `;
-      
-      res.setHeader('Content-Type', 'text/html');
-      res.status(200).send(html);
-      
-    } catch (error) {
-      console.error('Error processing vote:', error);
-      res.status(500).json({ error: 'Internal server error' });
+  console.log('Vote endpoint hit:', req.method);
+  console.log('Request body:', req.body);
+  
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
+
+  try {
+    const body = req.body;
+    
+    // Determine vote based on button clicked
+    let team = 'unknown';
+    let voteText = 'Unknown';
+    
+    if (body.untrustedData?.buttonIndex === 1) {
+      team = 'yes';
+      voteText = 'YES - $120K+';
+    } else if (body.untrustedData?.buttonIndex === 2) {
+      team = 'no';
+      voteText = 'NO - Under $120K';
     }
-  } else {
-    res.status(405).json({ message: 'Method not allowed' });
+    
+    const fid = body.untrustedData?.fid || 'anonymous';
+    
+    // Save vote to database
+    const { error } = await supabase.from('votes').insert([
+      { 
+        team, 
+        username: String(fid),
+        created_at: new Date().toISOString()
+      }
+    ]);
+    
+    if (error) {
+      console.error('Database error:', error);
+    }
+    
+    // Get current vote counts
+    const { data: votes } = await supabase
+      .from('votes')
+      .select('team');
+    
+    const yesCount = votes?.filter(v => v.team === 'yes').length || 0;
+    const noCount = votes?.filter(v => v.team === 'no').length || 0;
+    const total = yesCount + noCount;
+    
+    // Return success frame
+    const resultHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vote Recorded - BTC Frame</title>
+    
+    <!-- Farcaster Frame Meta Tags -->
+    <meta property="fc:frame" content="vNext" />
+    <meta property="fc:frame:image" content="https://farcaster-btc-predictions-vspv.vercel.app/og/result.png" />
+    <meta property="fc:frame:image:aspect_ratio" content="1.91:1" />
+    <meta property="fc:frame:button:1" content="🔄 Vote Again" />
+    <meta property="fc:frame:button:1:action" content="post" />
+    <meta property="fc:frame:button:1:target" content="https://farcaster-btc-predictions-vspv.vercel.app/api/frame" />
+    <meta property="fc:frame:button:2" content="📊 Results (${total} votes)" />
+    <meta property="fc:frame:button:2:action" content="link" />
+    <meta property="fc:frame:button:2:target" content="https://farcaster-btc-predictions-vspv.vercel.app/api/results" />
+    <meta property="fc:frame:post_url" content="https://farcaster-btc-predictions-vspv.vercel.app/api/frame" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Vote Recorded!" />
+    <meta property="og:description" content="You voted: ${voteText}" />
+    <meta property="og:image" content="https://farcaster-btc-predictions-vspv.vercel.app/og/result.png" />
+</head>
+<body>
+    <div style="padding: 40px; text-align: center; font-family: Arial, sans-serif;">
+        <h1>✅ Vote Recorded!</h1>
+        <p><strong>You voted:</strong> ${voteText}</p>
+        <p>Current Results:</p>
+        <p>YES: ${yesCount} | NO: ${noCount}</p>
+        <p style="color: #666;">Total votes: ${total}</p>
+    </div>
+</body>
+</html>`;
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(200).send(resultHtml);
+    
+  } catch (error) {
+    console.error('Error processing vote:', error);
+    
+    const errorHtml = `<!DOCTYPE html>
+<html>
+<head>
+    <meta property="fc:frame" content="vNext" />
+    <meta property="fc:frame:image" content="https://farcaster-btc-predictions-vspv.vercel.app/og/result.png" />
+    <meta property="fc:frame:button:1" content="🔄 Try Again" />
+    <meta property="fc:frame:button:1:action" content="post" />
+    <meta property="fc:frame:button:1:target" content="https://farcaster-btc-predictions-vspv.vercel.app/api/frame" />
+</head>
+<body>
+    <h1>Error occurred</h1>
+    <p>Please try again</p>
+</body>
+</html>`;
+    
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(500).send(errorHtml);
   }
 }
