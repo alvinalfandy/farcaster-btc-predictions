@@ -1,7 +1,8 @@
+// pages/api/frame.js
 export default function handler(req, res) {
   // Force HTML content type
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 'max-age=0');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   
   const frameHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -15,9 +16,7 @@ export default function handler(req, res) {
     <meta property="fc:frame:image" content="https://farcaster-btc-predictions-vspv.vercel.app/og/result.png" />
     <meta property="fc:frame:image:aspect_ratio" content="1.91:1" />
     <meta property="fc:frame:button:1" content="✅ Yes - $120K+" />
-    <meta property="fc:frame:button:1:action" content="post" />
     <meta property="fc:frame:button:2" content="❌ No - Under $120K" />
-    <meta property="fc:frame:button:2:action" content="post" />
     <meta property="fc:frame:post_url" content="https://farcaster-btc-predictions-vspv.vercel.app/api/vote" />
     
     <!-- Open Graph Meta Tags -->
