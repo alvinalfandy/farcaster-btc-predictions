@@ -17,6 +17,9 @@ export default function Home() {
         <meta property="fc:frame:button:2" content="❌ No - Under $120K" />
         <meta property="fc:frame:post_url" content="https://farcaster-btc-predictions-vspv.vercel.app/api/vote" />
         
+        {/* Mini App Manifest */}
+        <link rel="manifest" href="/api/manifest" />
+        
         {/* Open Graph */}
         <meta property="og:title" content="Will BTC reach $120K this year?" />
         <meta property="og:image" content="https://farcaster-btc-predictions-vspv.vercel.app/og/result.png" />

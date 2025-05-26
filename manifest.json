@@ -1,0 +1,13 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjAsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIn0",
+    "payload": "eyJkb21haW4iOiJmYXJjYXN0ZXItYnRjLXByZWRpY3Rpb25zLXZzcHYudmVyY2VsLmFwcCJ9",
+    "signature": "MHgwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA"
+  },
+  "frame": {
+    "name": "BTC Price Prediction",
+    "iconUrl": "https://farcaster-btc-predictions-vspv.vercel.app/icon.png",
+    "splashImageUrl": "https://farcaster-btc-predictions-vspv.vercel.app/og/result.png",
+    "webhookUrl": "https://farcaster-btc-predictions-vspv.vercel.app/api/webhook"
+  }
+}
